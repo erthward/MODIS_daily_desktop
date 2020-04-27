@@ -17,7 +17,7 @@ os.replace(img_file, filepath)
 text_today = date.today().strftime('%Y-%m-%d')
 text_url = ('http://modis.gsfc.nasa.gov/gallery/'
             'individual.php?db_date=%s') % text_today
-text_file = '../today.php'
+text_file = '/home/drew/MODIS_daily_img/today.php'
 php_file = wget.download(text_url, out=text_file)
 with open(php_file, 'r') as f:
     text = f.read()
@@ -26,7 +26,7 @@ for ws in string.whitespace[1:]:
     descrip = re.sub(ws, '', descrip)
 tags = re.compile('<.*?>')
 descrip = re.sub(tags, '', descrip).strip()
-with open('../today.txt', 'w') as f:
+with open('/home/drew/MODIS_daily_img/today.txt', 'w') as f:
     f.write(descrip)
 
 
