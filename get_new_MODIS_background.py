@@ -16,6 +16,8 @@ if last_date != today:
     import string
     import re
     import os
+    import textwrap
+    import pydoc
 
     # print informative header
     header = '* DOWNLOADING DAILY MODIS DESKTOP IMAGE *'
@@ -44,11 +46,18 @@ if last_date != today:
         descrip = re.sub(ws, '', descrip)
     tags = re.compile('<.*?>')
     descrip = re.sub(tags, '', descrip).strip()
+    #wrap the text
+    descrip = '\n'.join(textwrap.wrap(descrip, width=80))
     # add today's date to the text file
     descrip = today + '\n\n' + descrip
+    # add the website link
+    descrip = descrip + '\n\n' +  'URL:\n---\n' + txt_url + '\n\n'
     with open(descrip_filepath, 'w') as f:
         f.write(descrip)
-    print('\n' * 2 + 'DESCRIPTION:\n-----------')
-    print(descrip)
+    pydoc_header = '* DAILY MODIS DESKTOP IMAGE *'
+    pydoc_header = ('*' * len(pydoc_header) + '\n' + pydoc_header 
+                    + '\n' + '*' * len(pydoc_header) + '\n\n')
+    pydoc_txt = pydoc_header + 'DESCRIPTION:\n-----------\n' + descrip
+    pydoc.pager(pydoc_txt)
     # get rid of the PHP file
     os.remove(txt_filepath)
