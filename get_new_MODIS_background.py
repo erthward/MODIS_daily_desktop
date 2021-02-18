@@ -1,9 +1,17 @@
 from datetime import date
 
+show_txt = False
+use_pywal = True
+pywal_theme_type = 'light'
+pywal_bgrounds = {'light': "#f5f5ed",
+                  'dark': "#545350"
+                 }
+
+
 # define filepaths
-descrip_filepath = '/home/drew/MODIS_daily_img/today.txt'
-img_filepath = '/home/drew/Pictures/MODIS_daily.jpg'
-txt_filepath = '/home/drew/MODIS_daily_img/today.php'
+descrip_filepath = '/home/drewhart/MODIS_daily_img/today.txt'
+img_filepath = '/home/drewhart/Pictures/MODIS_daily.jpg'
+txt_filepath = '/home/drewhart/MODIS_daily_img/today.php'
 
 # read in the last date with data downloaded
 with open(descrip_filepath, 'r') as f:
@@ -51,7 +59,7 @@ if last_date != today:
                 img_file = wget.download(url)
         print(url)
         os.replace(img_file, img_filepath)
-        
+
         # get the descriptive text
         txt_today = date.today().strftime('%Y-%m-%d')
         txt_url = ('http://modis.gsfc.nasa.gov/gallery/'
@@ -74,12 +82,20 @@ if last_date != today:
         with open(descrip_filepath, 'w') as f:
             f.write(descrip)
         pydoc_header = '* DAILY MODIS DESKTOP IMAGE *'
-        pydoc_header = ('*' * len(pydoc_header) + '\n' + pydoc_header 
+        pydoc_header = ('*' * len(pydoc_header) + '\n' + pydoc_header
                         + '\n' + '*' * len(pydoc_header) + '\n\n')
         pydoc_txt = pydoc_header + 'DESCRIPTION:\n-----------\n' + descrip
-        pydoc.pager(pydoc_txt)
+        # show text, if required
+        if show_txt:
+            pydoc.pager(pydoc_txt)
         # get rid of the PHP file
         os.remove(txt_filepath)
+        # use pywal to set the terminal colorscheme based on the new image
+        if use_pywal:
+            cmd = ('wal --saturate 0.35 -i ./Pictures/MODIS_daily.jpg '
+                   '--backend colorz -%s -b "%s"') % (pywal_theme_type[0],
+                                            pywal_bgrounds[pywal_theme_type])
+            os.system(cmd)
     else:
         print(('\n\n\tOkay. You will be prompted again in the next '
                'terminal window you open.\n\n'))

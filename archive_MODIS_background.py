@@ -1,7 +1,7 @@
 import os
 
 # get files and date
-home_dir = '/home/drew/'
+home_dir = '/home/drewhart/'
 txt_file = os.path.join(home_dir, 'MODIS_daily_img/today.txt')
 img_file = os.path.join(home_dir, 'Pictures/MODIS_daily.jpg')
 with open(txt_file, 'r') as f:
