@@ -9,14 +9,17 @@ pywal_bgrounds = {'light': "#f5f5ed",
 
 
 # define filepaths
-descrip_filepath = '/home/drewhart/MODIS_daily_img/today.txt'
-img_filepath = '/home/drewhart/Pictures/MODIS_daily.jpg'
-txt_filepath = '/home/drewhart/MODIS_daily_img/today.php'
+descrip_filepath = '/home/deth/MODIS_daily_img/today.txt'
+img_filepath = '/home/deth/Pictures/MODIS_daily.jpg'
+txt_filepath = '/home/deth/MODIS_daily_img/today.php'
 
 # read in the last date with data downloaded
 with open(descrip_filepath, 'r') as f:
     last_date = f.readlines()[0].strip()
-    today = date.today().strftime('%d-%m-%Y')
+    today = date.today()
+    # subtract a day to account for fact that US is behind Australia
+    # and so the text doesn't get released until after the workday here
+    today = date.fromordinal(today.toordinal()-1).strftime('%d-%m-%Y')
 
 # if newest download is not today, then ask whether to run the script
 if last_date != today:
@@ -69,6 +72,12 @@ if last_date != today:
         with open(php_file, 'r') as f:
             text = f.read()
         descrip = text.split('<b>Image Facts')[0].split('Share')[-1]
+        # try to grab a scrollover URL if there is one
+        scrollover_url_patt='(?<=<a href=").*go\.nasa\.gov.*(?=">here</a>)'
+        scrollover_url = re.search(scrollover_url_patt, descrip)
+        if scrollover_url is not None:
+            scrollover_url = scrollover_url.group()
+        # format the description text more
         for ws in string.whitespace[1:]:
             descrip = re.sub(ws, '', descrip)
         tags = re.compile('<.*?>')
@@ -79,6 +88,10 @@ if last_date != today:
         descrip = today + '\n\n' + descrip
         # add the website link
         descrip = descrip + '\n\n' +  'URL:\n---\n' + txt_url + '\n\n'
+        # add the scrollover link at the bottom, if found
+        if scrollover_url is not None:
+            descrip = descrip + ('\n' +  'SCROLLOVER URL:\n---\n' +
+                                 scrollover_url + '\n\n')
         with open(descrip_filepath, 'w') as f:
             f.write(descrip)
         pydoc_header = '* DAILY MODIS DESKTOP IMAGE *'
@@ -92,8 +105,12 @@ if last_date != today:
         os.remove(txt_filepath)
         # use pywal to set the terminal colorscheme based on the new image
         if use_pywal:
-            cmd = ('wal --saturate 0.35 -i ./Pictures/MODIS_daily.jpg '
-                   '--backend colorz -%s -b "%s"') % (pywal_theme_type[0],
+            # get rid of the previous pywal colorscheme
+            os.system('wal -c')
+            # then create the new one
+            cmd = ('wal --saturate 0.3 -i ./Pictures/MODIS_daily.jpg '
+                   #'--backend colorz -%s -b "%s"') % (pywal_theme_type[0],
+                   '--backend haishoku -%s -b "%s"') % (pywal_theme_type[0],
                                             pywal_bgrounds[pywal_theme_type])
             os.system(cmd)
     else:
